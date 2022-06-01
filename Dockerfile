@@ -43,5 +43,5 @@ WORKDIR /var/www/html
 VOLUME /var/www/html
 EXPOSE 80
 
-ENTRYPOINT ["sh", "./entrypoint.sh"]
+ENTRYPOINT ["sh", "/entrypoint.sh"]
 CMD ["apachectl","-D","FOREGROUND"]
