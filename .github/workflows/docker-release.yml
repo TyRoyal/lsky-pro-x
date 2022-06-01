@@ -3,8 +3,8 @@ name: docker-release
 on:
   workflow_dispatch:
     inputs:
-      tags:
-        description: 'Lsky-pro tags'
+      tag:
+        description: 'Lsky-pro tag'
         required: true
 
 jobs:
