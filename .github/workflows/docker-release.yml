@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       tags:
-        description: 'Docker tags'
+        description: 'Lsky-pro tags'
         required: true
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
         run: |
           sha=$(curl -sX GET \
             "https://api.github.com/repos/lsky-org/lsky-pro/tags" \
-            | jq -r '(.[]|select(.name==${{github.event.inputs.tag}})).commit.sha')
+            | jq -r '.[]|(select(.name==${{github.event.inputs.tag}})).commit.sha')
           echo "::set-output name=sha::${sha}"
 
       - name: Get current date
@@ -75,5 +75,5 @@ jobs:
           labels: |
             build_version=TyRoyal version:- ${{github.event.inputs.tag}} Build-date:- ${{steps.date.outputs.date}}
           tags: |
-            tyroyal/lsky-pro-docker:${{ github.event.inputs.tag }}
-            tyroyal/lsky-pro-docker:latest
+            tyroyal/lsky-pro-x:${{ github.event.inputs.tag }}
+            tyroyal/lsky-pro-x:latest
