@@ -16,7 +16,7 @@ jobs:
         run: |
           sha=$(curl -sX GET \
             "https://api.github.com/repos/lsky-org/lsky-pro/tags" \
-            | jq -r '.[]|(select(.name==${{github.event.inputs.tag}})).commit.sha')
+            | jq -r '.[]|(select(.name=="${{github.event.inputs.tag}}")).commit.sha')
           echo "::set-output name=sha::${sha}"
 
       - name: Get current date
