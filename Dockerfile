@@ -2,15 +2,31 @@ FROM php:8.1-apache
 MAINTAINER TyRoyal
 RUN a2enmod rewrite
 
-RUN apt-get update && apt-get install imagemagick libmagickwand-dev -y \
-    && pecl install imagick \
-    && docker-php-ext-install bcmath \
-    && docker-php-ext-install pdo_mysql \
-    && docker-php-ext-enable imagick \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* \
-    && rm -rf /var/cache/apt/* \
-    && rm -rf /tmp/* 
+RUN set -ex; \
+    \
+    savedAptMark="$(apt-mark showmanual)"; \
+    \
+    apt-get update; \
+    apt-get install imagemagick libmagickwand-dev -y --no-install-recommends; \
+    pecl install imagick; \
+    docker-php-ext-install bcmath; \
+    docker-php-ext-install pdo_mysql; \
+    docker-php-ext-enable imagick; \
+    apt-get clean; \
+    apt-mark auto '.*' > /dev/null; \
+    apt-mark manual $savedAptMark; \
+    ldd "$(php -r 'echo ini_get("extension_dir");')"/*.so \
+        | awk '/=>/ { print $3 }' \
+        | sort -u \
+        | xargs -r dpkg-query -S \
+        | cut -d: -f1 \
+        | sort -u \
+        | xargs -rt apt-mark manual; \
+    \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+    rm -rf /var/lib/apt/lists/* ;\
+    rm -rf /var/cache/apt/* ;\
+    rm -rf /tmp/* ;
 
 RUN { \
     echo 'post_max_size = 100M;';\
