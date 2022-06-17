@@ -1,10 +1,10 @@
-name: docker-release
+name: docker-nightly
 
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Lsky-pro tag'
+        description: 'Lsky-pro commit tag'
         required: true
 
 jobs:
@@ -19,8 +19,8 @@ jobs:
         id: vars
         run: |
           sha=$(curl -sX GET \
-            "https://api.github.com/repos/lsky-org/lsky-pro/tags" \
-            | jq -r '.[]|(select(.name=="${{github.event.inputs.tag}}")).commit.sha')
+            "https://api.github.com/repos/lsky-org/lsky-pro/commits/${{github.event.inputs.tag}}" \
+            | jq -r '.sha')
           echo "::set-output name=sha::${sha}"
 
       - name: Get current date
@@ -37,14 +37,15 @@ jobs:
 
       - name: setup platform emulator
         uses: docker/setup-qemu-action@v1
-
       - name: setup multi-arch docker build
         uses: docker/setup-buildx-action@v1
 
       - name: Download and Unzip Upstream Source Code
         run: |
-          curl -OL https://github.com/lsky-org/lsky-pro/releases/download/${{github.event.inputs.tag}}/lsky-pro-${{github.event.inputs.tag}}.zip
+          curl -OL https://github.com/lsky-org/lsky-pro/archive/${{ steps.vars.outputs.sha }}.zip
           unzip -o *.zip
+          mv ./lsky-pro-${{ steps.vars.outputs.sha }}/* ./
+          mv ./lsky-pro-${{ steps.vars.outputs.sha }}/.env.example ./
 
       - uses: shivammathur/setup-php@v2
         with:
@@ -53,9 +54,12 @@ jobs:
       - name: Copy .env
         run: php -r "file_exists('.env') || copy('.env.example', '.env');"
       
+      - name: Install Dependencies
+        run: composer install --optimize-autoloader
+
       - name: Clean file to reduce image size
         run: |
-          rm -rf lsky-pro-${{github.event.inputs.tag}}.zip lsky-pro-${{github.event.inputs.tag}}
+          rm -rf ${{ steps.vars.outputs.sha }}.zip lsky-pro-${{ steps.vars.outputs.sha }}
           rm -rf .editorconfig .gitattributes .gitignore .styleci.yml composer.lock package-lock.json README.md tailwind.config.js webpack.mix.js
 
       - name: Login to DockerHub
@@ -72,7 +76,7 @@ jobs:
           platforms: linux/amd64, linux/arm64/v8, linux/arm/v7
           push: true
           labels: |
-            build_version=TyRoyal version:- ${{github.event.inputs.tag}} Build-date:- ${{steps.date.outputs.date}}
-          tags: |
-            tyroyal/lsky-pro-x:${{ github.event.inputs.tag }}
-            tyroyal/lsky-pro-x:latest
+            build_version=TyRoyal version:- ${{github.event.inputs.tag}} nightly Build-date:- ${{steps.date.outputs.date}}
+          tags: tyroyal/lsky-pro-x:nightly
+
+
