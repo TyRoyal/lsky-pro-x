@@ -26,7 +26,7 @@ jobs:
             FAILURE_REASON="Can't retrieve external version for lsky-pro branch master"
             GHA_TRIGGER_URL="https://github.com/tyroyal/lsky-pro-x/actions/runs/${{ github.run_id }}"
             MESSAGE='<font color=\"info\">Lsky-pro-x</font> **Trigger Failed**\n**Reason:** <font color=\"warning\">'"${FAILURE_REASON}"'</font> \n**Trigger URL:** ['"${GHA_TRIGGER_URL}"']('"${GHA_TRIGGER_URL}"')'
-            curl ${{ secrets.WECHAT_WEBHOOK }} -X POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}' 
+            curl ${{ secrets.WECHAT_WEBHOOK }} -sX POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}' 
             exit 1
           fi
           EXT_RELEASE=$(echo ${EXT_RELEASE} | sed 's/[-~,%@;:/]//g' | sed 's/+/-/g')
@@ -58,7 +58,7 @@ jobs:
             echo "**** Can't retrieve last pushed version, exiting ****"
             FAILURE_REASON="Can't retrieve last pushed version for lsky-pro tag nightly"
             MESSAGE='**Trigger Failed** \n**Reason:** '"${FAILURE_REASON}"' \n'
-            curl ${{ secrets.WECHAT_WEBHOOK }} -X POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}'
+            curl ${{ secrets.WECHAT_WEBHOOK }} -sX POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}'
             exit 1
           fi
           echo "**** Last pushed version: ${IMAGE_VERSION} ****"
@@ -69,7 +69,7 @@ jobs:
           else
             echo "**** New version ${EXT_RELEASE} found; old version was ${IMAGE_VERSION}. Triggering new build ****"
             WORKFLOW_ID=$(curl -sX GET "https://api.github.com/repos/tyroyal/lsky-pro-x/actions/workflows" | jq -r '.workflows[]|(select(.name=="docker-nightly")).id')
-            curl -iX POST \
+            curl -isX POST \
                   -H "Authorization: token ${{ secrets.CR_PAT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
                   -d '{"ref":"refs/heads/master","inputs":{"tag":"'"${EXT_RELEASE}"'"}}' \
@@ -81,5 +81,5 @@ jobs:
             echo "**** Notifying WeChat ****"
             TRIGGER_REASON="A version change was detected for lsky-pro tag nightly. Old version:${IMAGE_VERSION} New version:${EXT_RELEASE}"
             MESSAGE='**Build Triggered** \n**Reason:** '"${TRIGGER_REASON}"' \n**Build URL:** '"${buildurl}display/redirect"' \n'
-            curl ${{ secrets.WECHAT_WEBHOOK }} -X POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}'
+            curl ${{ secrets.WECHAT_WEBHOOK }} -sX POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}'
           fi
