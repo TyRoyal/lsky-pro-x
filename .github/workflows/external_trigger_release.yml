@@ -68,7 +68,7 @@ jobs:
             exit 0
           else
             echo "**** New version ${EXT_RELEASE} found; old version was ${IMAGE_VERSION}. Triggering new build ****"
-            WORKFLOW_ID=$(curl -sX GET "https://api.github.com/repos/tyroyal/lsky-pro-x/actions/workflows" | jq -r '.workflows[]|(select(.name=="docker-release")).url')
+            WORKFLOW_ID=$(curl -sX GET "https://api.github.com/repos/tyroyal/lsky-pro-x/actions/workflows" | jq -r '.workflows[]|(select(.name=="docker-release")).id')
             curl -iX POST \
                   -H "Authorization: token ${{ secrets.CR_PAT }}" \
                   -H "Accept: application/vnd.github.v3+json" \

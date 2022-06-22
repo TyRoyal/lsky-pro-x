@@ -68,7 +68,7 @@ jobs:
             exit 0
           else
             echo "**** New version ${EXT_RELEASE} found; old version was ${IMAGE_VERSION}. Triggering new build ****"
-            WORKFLOW_ID=$(curl -sX GET "https://api.github.com/repos/tyroyal/lsky-pro-x/actions/workflows" | jq -r '.workflows[]|(select(.name=="docker-nightly")).url')
+            WORKFLOW_ID=$(curl -sX GET "https://api.github.com/repos/tyroyal/lsky-pro-x/actions/workflows" | jq -r '.workflows[]|(select(.name=="docker-nightly")).id')
             curl -iX POST \
                   -H "Authorization: token ${{ secrets.CR_PAT }}" \
                   -H "Accept: application/vnd.github.v3+json" \
@@ -79,7 +79,7 @@ jobs:
             echo "**** Github action run job build url: ${response} ****"
 
             echo "**** Notifying WeChat ****"
-            TRIGGER_REASON="A version change was detected for lsky-pro tag latest. Old version:${IMAGE_VERSION} New version:${EXT_RELEASE}"
+            TRIGGER_REASON="A version change was detected for lsky-pro tag nightly. Old version:${IMAGE_VERSION} New version:${EXT_RELEASE}"
             MESSAGE='**Build Triggered** \n**Reason:** '"${TRIGGER_REASON}"' \n**Build URL:** '"${buildurl}display/redirect"' \n'
             curl ${{ secrets.WECHAT_WEBHOOK }} -X POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}'
           fi
