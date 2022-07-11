@@ -80,6 +80,6 @@ jobs:
 
             echo "**** Notifying WeChat ****"
             TRIGGER_REASON="A version change was detected for lsky-pro tag nightly. Old version:${IMAGE_VERSION} New version:${EXT_RELEASE}"
-            MESSAGE='**Build Triggered** \n**Reason:** '"${TRIGGER_REASON}"' \n**Build URL:** '"${buildurl}display/redirect"' \n'
+            MESSAGE='**Build Triggered** \n**Reason:** '"${TRIGGER_REASON}"' \n**Build URL:** '"${buildurl}"' \n'
             curl ${{ secrets.WECHAT_WEBHOOK }} -sX POST -H "Content-Type: application/json" --data '{"msgtype": "markdown", "markdown": {"content": "'"${MESSAGE}"'"}}'
           fi
