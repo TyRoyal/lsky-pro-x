@@ -1,17 +1,17 @@
 FROM php:8.1-apache
 MAINTAINER TyRoyal
-RUN a2enmod rewrite
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+
+
 
 RUN set -ex; \
+    a2enmod rewrite; \
     \
     savedAptMark="$(apt-mark showmanual)"; \
     \
     apt-get update; \
-    apt-get install imagemagick libmagickwand-dev -y --no-install-recommends; \
-    pecl install imagick; \
-    docker-php-ext-install bcmath; \
-    docker-php-ext-install pdo_mysql; \
-    docker-php-ext-enable imagick; \
+    chmod +x /usr/local/bin/install-php-extensions; \
+    install-php-extensions imagick bcmath pdo_mysql redis; \
     apt-get clean; \
     apt-mark auto '.*' > /dev/null; \
     apt-mark manual $savedAptMark; \

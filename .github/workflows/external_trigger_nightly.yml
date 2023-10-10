@@ -9,7 +9,7 @@ jobs:
   external-trigger-nightly:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v2
 
       - name: External Trigger Nightly
         run: |
@@ -39,17 +39,17 @@ jobs:
             "https://auth.docker.io/token?service=registry.docker.io&scope=repository:${image}:pull" \
             | jq -r '.token')
           multidigest=$(curl -sX GET \
-            --header "Accept: application/vnd.docker.distribution.manifest.list.v2+json" \
+            --header "Accept: application/vnd.docker.distribution.manifest.list.v1+json" \
             --header "Authorization: Bearer ${token}" \
             "https://index.docker.io/v2/${image}/manifests/${tag}" \
             | jq -r 'first(.manifests[].digest)')
           digest=$(curl -sX GET \
-            --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+            --header "Accept: application/vnd.docker.distribution.manifest.v1+json" \
             --header "Authorization: Bearer ${token}" \
             "https://index.docker.io/v2/${image}/manifests/${multidigest}" \
             | jq -r '.config.digest')
           image_info=$(curl -sLX GET \
-            --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+            --header "Accept: application/vnd.docker.distribution.manifest.v1+json" \
             --header "Authorization: Bearer ${token}" \
             "https://index.docker.io/v2/${image}/blobs/${digest}" \
             | jq -r '.config')

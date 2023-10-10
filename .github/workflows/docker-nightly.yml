@@ -11,7 +11,7 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2.3.3
+      - uses: actions/checkout@v2
         with:
           fetch-depth: '0'
 
@@ -27,7 +27,7 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%dT%H:%M:%S%:z')"
 
-      - name: create-json
+      - name: Create json
         id: create-json
         uses: jsdaniell/create-json@1.1.2
         with:
@@ -35,9 +35,10 @@ jobs:
           json: '{"type": "docker", "tag": "latest", "commit": "${{ steps.vars.outputs.sha }}", "date": "${{ steps.date.outputs.date }}"}'
           dir: './'
 
-      - name: setup platform emulator
+      - name: Setup platform emulator
         uses: docker/setup-qemu-action@v1
-      - name: setup multi-arch docker build
+        
+      - name: Setup multi-arch docker build
         uses: docker/setup-buildx-action@v1
 
       - name: Download and Unzip Upstream Source Code
@@ -68,7 +69,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: build & push images
+      - name: Build & Push images
         uses: docker/build-push-action@v2
         with:
           context: .
