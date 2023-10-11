@@ -44,12 +44,12 @@ jobs:
             "https://index.docker.io/v2/${image}/manifests/${tag}" \
             | jq -r 'first(.manifests[].digest)')
           digest=$(curl -sX GET \
-            --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+            --header "Accept: application/vnd.oci.image.manifest.v1+json" \
             --header "Authorization: Bearer ${token}" \
             "https://index.docker.io/v2/${image}/manifests/${multidigest}" \
             | jq -r '.config.digest')
           image_info=$(curl -sLX GET \
-            --header "Accept: application/vnd.docker.distribution.manifest.v2+json" \
+            --header "Accept: application/vnd.oci.image.config.v1+json" \
             --header "Authorization: Bearer ${token}" \
             "https://index.docker.io/v2/${image}/blobs/${digest}" \
             | jq -r '.config')
